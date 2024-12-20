@@ -99,4 +99,38 @@ itemsRouter.post('/', imagesUpload.single('image'),  async (req, res, next) => {
     }
 });
 
+itemsRouter.put('/:id', imagesUpload.single('image'), async (req,res, next) => {
+    const id = req.params.id;
+
+    if (!req.params.id) {
+        res.status(404).send('Category not found');
+    }
+
+    if (!req.body.title || !req.body.category_id || !req.body.location_id) {
+        res.status(400).send({error: 'Please send a title, category_id and location_id'});
+        return;
+    }
+
+    try {
+        const item = req.body;
+        const connection = await mysqlInventory.getConnection();
+        const [result] = await connection.query('SELECT * FROM items WHERE id = ?', [id]);
+        const items = result as Item[];
+
+        if (items.length === 0) {
+            res.status(404).send("Item not found to edit!");
+        }
+
+        await connection.query('UPDATE items SET category_id = ?, location_id = ?, title = ?, description = ?, image = ? WHERE id = ?', [item.category_id, item.location_id, item.title, item.description, item.image, id]);
+
+        const [resultEditItem] = await connection.query('SELECT * FROM items WHERE id = ?', [id]);
+        const oneEditItem= resultEditItem as Item[];
+        res.send(oneEditItem[0]);
+
+    } catch (e) {
+        next(e);
+    }
+
+});
+
 export default itemsRouter;

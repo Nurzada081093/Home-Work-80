@@ -102,7 +102,37 @@ categoriesRouter.post('/', async (req, res, next) => {
     }
 });
 
-categoriesRouter.put('/', async (req, res, next) => {
+categoriesRouter.put('/:id', async (req,res, next) => {
+    const id = req.params.id;
+
+    if (!req.params.id) {
+        res.status(404).send('Category not found');
+    }
+
+    if (!req.body.title) {
+        res.status(400).send({error: 'Please send a category title'});
+        return;
+    }
+
+    try {
+        const category = req.body;
+        const connection = await mysqlInventory.getConnection();
+        const [result] = await connection.query('SELECT * FROM categories WHERE id = ?', [id]);
+        const categories = result as ICategory[];
+
+        if (categories.length === 0) {
+            res.status(404).send("Category not found to edit!");
+        }
+
+        await connection.query('UPDATE categories SET title = ?, description = ? WHERE id = ?', [category.title, category.description, id]);
+
+        const [resultEditCategory] = await connection.query('SELECT * FROM categories WHERE id = ?', [id]);
+        const oneEditCategory = resultEditCategory as ICategory[];
+        res.send(oneEditCategory[0]);
+
+    } catch (e) {
+        next(e);
+    }
 
 });
 

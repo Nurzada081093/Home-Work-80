@@ -5,7 +5,7 @@ import {ResultSetHeader} from "mysql2";
 
 const locationsRouter = express.Router();
 
-locationsRouter.get('/', async (req, res, next) => {
+locationsRouter.get('/', async (_req, res, next) => {
     try {
         const connection = await mysqlInventory.getConnection();
         const [result] = await connection.query('SELECT title, id FROM locations');
@@ -99,6 +99,40 @@ locationsRouter.post('/', async (req, res, next) => {
     } catch (e) {
         next(e);
     }
+});
+
+locationsRouter.put('/:id', async (req,res, next) => {
+    const id = req.params.id;
+
+    if (!req.params.id) {
+        res.status(404).send('Location not found');
+    }
+
+    if (!req.body.title) {
+        res.status(400).send({error: 'Please send a location title'});
+        return;
+    }
+
+    try {
+        const location = req.body;
+        const connection = await mysqlInventory.getConnection();
+        const [result] = await connection.query('SELECT * FROM locations WHERE id = ?', [id]);
+        const locations = result as ILocation[];
+
+        if (locations.length === 0) {
+            res.status(404).send("Location not found to edit!");
+        }
+
+        await connection.query('UPDATE locations SET title = ?, description = ? WHERE id = ?', [location.title, location.description, id]);
+
+        const [resultEditLocation] = await connection.query('SELECT * FROM locations WHERE id = ?', [id]);
+        const oneEditLocation = resultEditLocation as ILocation[];
+        res.send(oneEditLocation[0]);
+
+    } catch (e) {
+        next(e);
+    }
+
 });
 
 export default locationsRouter;

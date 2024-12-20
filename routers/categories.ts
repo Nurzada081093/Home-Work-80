@@ -5,7 +5,7 @@ import {ResultSetHeader} from "mysql2";
 
 const categoriesRouter = express.Router();
 
-categoriesRouter.get('/', async (req, res, next) => {
+categoriesRouter.get('/', async (_req, res, next) => {
     try {
         const connection = await mysqlInventory.getConnection();
         const [result] = await connection.query('SELECT title, id FROM categories');
@@ -100,6 +100,10 @@ categoriesRouter.post('/', async (req, res, next) => {
     } catch (e) {
         next(e);
     }
+});
+
+categoriesRouter.put('/', async (req, res, next) => {
+
 });
 
 export default categoriesRouter;

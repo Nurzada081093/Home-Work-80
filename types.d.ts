@@ -4,6 +4,16 @@ export interface ICategory {
     description: string;
 }
 
+export type CategoryWithoutId = Omit<ICategory, 'id'>
+
+export interface ILocation {
+    id: string;
+    title: string;
+    description: string;
+}
+
+export type LocationWithoutId = Omit<ILocation, 'id'>
+
 export interface Item {
     id: string;
     category_id: number;

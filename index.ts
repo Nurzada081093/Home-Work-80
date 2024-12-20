@@ -3,6 +3,7 @@ import cors from "cors";
 import categoriesRouter from "./routers/categories";
 import mysqlInventory from "./mysqlInventory";
 import itemsRouter from "./routers/items";
+import locationsRouter from "./routers/locations";
 
 const app = express();
 const port = 8000;
@@ -11,7 +12,7 @@ app.use(cors());
 app.use(express.static('public'));
 
 app.use('/categories', categoriesRouter);
-// app.use('/locations', locationsRouter);
+app.use('/locations', locationsRouter);
 app.use('/items', itemsRouter);
 
 const run = async () => {

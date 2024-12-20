@@ -41,7 +41,7 @@ itemsRouter.get('/:id', async (req, res, next) => {
     }
 });
 
-itemsRouter.delete('/:id', async (req,res, next)=>{
+itemsRouter.delete('/:id', async (req,res, next) => {
     const id = req.params.id;
 
     if (!req.params.id) {
@@ -50,13 +50,14 @@ itemsRouter.delete('/:id', async (req,res, next)=>{
 
     try {
         const connection = await mysqlInventory.getConnection();
-        const [result] = await connection.query('DELETE FROM items WHERE id = ?', [id]);
+        const [result] = await connection.query('SELECT * FROM items WHERE id = ?', [id]);
         const items = result as Item[];
 
         if (items.length === 0) {
-            res.status(404).send("Item not found");
+            res.status(404).send("Item not found to delete!");
         } else {
-            res.send('This item is deleted!');
+            await connection.query('DELETE FROM items WHERE id = ?', [id]);
+            res.send('This item has been successfully deleted!');
         }
 
     } catch (e) {
